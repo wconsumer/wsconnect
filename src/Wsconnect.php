@@ -4,7 +4,6 @@ namespace Wsconnect;
 use Drupal\wconsumer\Service\Base as Service;
 use Drupal\wconsumer\Service\Exception\NoUserCredentials;
 use Drupal\wconsumer\Wconsumer;
-use Guzzle\Http\Client;
 use Wsconnect\AuthBackend\AuthBackendInterface;
 
 
