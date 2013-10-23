@@ -2,7 +2,7 @@
 namespace Wsconnect;
 
 use Drupal\wconsumer\Service\Base as Service;
-use Wsconnect\AuthBackend\AuthBackendInterface;
+
 
 
 class Hooks {

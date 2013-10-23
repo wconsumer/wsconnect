@@ -157,8 +157,9 @@ class Wsconnect {
     catch (NoUserCredentials $e) {
       $frontendLib = DRUPAL_ROOT.'/'.drupal_get_path('module', 'wconsumer_ui').'/wconsumer_frontend_form.inc';
       require_once($frontendLib);
+      $_GET['destination'] = $_SERVER['REQUEST_URI'];
       _wconsumer_frontend_auth($backend->getService()->getName());
-      die; // just to make sure we can't to pass through this
+      die; // just to make sure we can't pass through this
     }
 
     return $userGuid;
