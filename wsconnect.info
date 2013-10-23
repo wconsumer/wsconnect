@@ -1,0 +1,7 @@
+name = "Connect with Anything (powered by Wconsumer)"
+description = Module provides buttons for logging in and singing up with external account like GitHub or Google
+core = 7.x
+php = 5.3
+dependencies[] = wconsumer
+files[] = src/Wsconnect.php
+files[] = src/FullAccessWrapper.php

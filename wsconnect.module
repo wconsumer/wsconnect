@@ -1,0 +1,103 @@
+<?php
+use Wsconnect\Wsconnect;
+use Drupal\wconsumer\Service\Base as Service;
+
+
+
+function wsconnect_wconsumer_define_required_scopes(Service $service) {
+  return Wsconnect::instance()->hooks->defineRequiredScopes($service);
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function wsconnect_block_info() {
+  return Wsconnect::instance()->hooks->defineBlocks();
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function wsconnect_block_view($delta = '') {
+  $block = Wsconnect::instance()->hooks->viewBlock($delta);
+  if (!$block) {
+    return null;
+  }
+
+  return array(
+    'subject' => '',
+    'content' => $block,
+  );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function wsconnect_form_user_login_block_alter(&$form, &$form_state) {
+  Wsconnect::instance()->hooks->showBlocksOnLoginForm($form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function wsconnect_form_user_login_alter(&$form, &$form_state) {
+  Wsconnect::instance()->hooks->showBlocksOnLoginForm($form);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function wsconnect_menu() {
+  $items['wsconnect/connect/%s'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'wsconnect_connect',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+  );
+
+  $items['wsconnect/disconnect/%s'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'wsconnect_disconnect',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_user_insert
+ */
+function wconsumer_github_connect_user_insert(&$edit, $account, $category) {
+  Wsconnect::instance()->hooks->storeCredentialsFromSessionToUserAccount($account->uid);
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function wsconnect_module_implements_alter(&$implementations, $hook) {
+  // Shift ours form altering to after wconsumer form altering. In other case we will receive user profile form
+  // withour webservices part originally coming from wconsumer
+  if ($hook == 'form_alter') {
+    $value = @$implementations['wsconnect'];
+    if (isset($value)) {
+      unset($implementations['wsconnect']);
+      $implementations['wsconnect'] = $value;
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function wsconnect_form_user_profile_form_alter(&$form, $form_state) {
+  Wsconnect::instance()->hooks->insertConnectButtonsIntoProfileForm($form);
+}
+
+function wsconnect_connect($service) {
+  Wsconnect::instance()->connect($service);
+}
+
+function wsconnect_disconnect($service) {
+  Wsconnect::instance()->disconnect($service);
+}
