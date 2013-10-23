@@ -2,6 +2,7 @@
 use Wsconnect\Wsconnect;
 use Drupal\wconsumer\Service\Base as Service;
 
+require_once(__DIR__.'/autoload.php');
 
 
 function wsconnect_wconsumer_define_required_scopes(Service $service) {
