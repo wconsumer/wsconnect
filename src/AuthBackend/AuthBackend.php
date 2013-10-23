@@ -12,6 +12,9 @@ abstract class AuthBackend implements AuthBackendInterface {
   private $cache;
 
 
+  public static function getClass() {
+    return get_called_class();
+  }
 
   public function __construct(Service $service, $userId) {
     $this->setService($service);

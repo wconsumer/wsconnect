@@ -9,36 +9,25 @@ use Wsconnect\AuthBackend\AuthBackendInterface;
 
 
 class Wsconnect {
-  private static $instance;
-
-  /** @var Hooks */
   public $hooks;
-
-  /** @var  AuthBackendInterface[] */
   public $backends;
+
+  private static $instance;
 
 
 
   public static function instance() {
-    global $user;
-
     if (!isset(self::$instance)) {
-      $wsconnect = new self();
-
-      $wsconnect->backends = array();
-      if (Wconsumer::$github->isActive()) {
-        $wsconnect->backends[Wconsumer::$github->getName()] = new AuthBackend\Github(Wconsumer::$github, $user->uid);
-      }
-      if (Wconsumer::$google->isActive()) {
-        $wsconnect->backends[Wconsumer::$google->getName()] = new AuthBackend\Google(Wconsumer::$google, $user->uid);
-      }
-
-      $wsconnect->hooks = new Hooks($wsconnect);
-
-      self::$instance = $wsconnect;
+      global $user;
+      self::$instance = new Wsconnect(new AuthBackendManager($user));
     }
 
     return self::$instance;
+  }
+
+  public function __construct(AuthBackendManager $backends) {
+    $this->backends = $backends;
+    $this->hooks = new Hooks($this);
   }
 
   public function connect($service) {
@@ -135,11 +124,11 @@ class Wsconnect {
       $_SESSION[$sessionKey] = $backend->getService()->getName();
     }
 
-    return @$this->backends[$_SESSION[$sessionKey]];
+    return $this->backends->get($_SESSION[$sessionKey]);
   }
 
   private function backend($service) {
-    $backend = @$this->backends[$service];
+    $backend = $this->backends->get($service);
 
     if (!isset($backend)) {
       $knownService = Wconsumer::instance()->services->get($service);
