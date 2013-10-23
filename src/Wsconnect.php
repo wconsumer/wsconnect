@@ -30,7 +30,7 @@ class Wsconnect {
         $wsconnect->backends[Wconsumer::$github->getName()] = new AuthBackend\Github(Wconsumer::$github, $user->uid);
       }
       if (Wconsumer::$google->isActive()) {
-        $wsconnect->backends[Wconsumer::$google->getName()] = new AuthBackend\Github(Wconsumer::$google, $user->uid);
+        $wsconnect->backends[Wconsumer::$google->getName()] = new AuthBackend\Google(Wconsumer::$google, $user->uid);
       }
 
       $wsconnect->hooks = new Hooks($wsconnect);
@@ -48,7 +48,7 @@ class Wsconnect {
 
       $this->currentlyConnectingWith($backend);
 
-      $this->connectCurrentUser($service, $userGuid) or
+      $this->connectCurrentUser($backend->getService(), $userGuid) or
       $this->loginUser($userGuid) or
       $this->registerUser($backend, $userGuid);
     }
@@ -82,7 +82,9 @@ class Wsconnect {
   }
 
   public function authmap($user = null, Service $service = null, $userGuid = null) {
-    $serviceId = "wsconnect-{$service->getName()}";
+    $serviceId = function(Service $service) {
+      return "wsconnect-{$service->getName()}";
+    };
 
     if (func_num_args() < 3) {
       if (!isset($user) || !isset($service)) {
@@ -95,7 +97,7 @@ class Wsconnect {
       $userGuid =
         db_select('{authmap}', 'am')
           ->fields('am', array('authname'))
-          ->condition('module', $serviceId)
+          ->condition('module', $serviceId($service))
           ->condition('uid', $uid)
           ->range(0, 1)
           ->execute()
@@ -113,14 +115,14 @@ class Wsconnect {
         throw new \BadMethodCallException();
       }
 
-      if ($this->authmap(null, null, $userGuid)) {
+      if (isset($userGuid) && $this->authmap(null, null, $userGuid)) {
         throw new UserSpaceError(t(
           "Sorry, can't connect you with the specified service account because ".
           "it is already connected with another account. Please disconnect it first."
         ));
       }
 
-      user_set_authmaps($user, array("authname_{$serviceId}" => $userGuid));
+      user_set_authmaps($user, array("authname_{$serviceId($service)}" => $userGuid));
     }
 
     return $userGuid;

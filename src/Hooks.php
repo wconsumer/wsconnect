@@ -63,7 +63,7 @@ class Hooks {
     return l(
       t("Connect with @service", array('@service' => $service->getMeta()->niceName)),
       sprintf('wconsumer/auth/%s/', rawurlencode($service->getName())),
-      array('query' => array('destination' => '/wsconnect/connect'))
+      array('query' => array('destination' => sprintf('/wsconnect/connect/%s', rawurlencode($service->getName()))))
     );
   }
 
@@ -100,7 +100,7 @@ class Hooks {
       };
 
       $defaultValueDefinedFor = function($field) use($default) {
-        return !$default($field);
+        return $default($field) != '';
       };
 
       $setDefaultValueFor = function($field, $value) use($default) {
@@ -171,8 +171,9 @@ class Hooks {
                  every time. To achieve this click the button below.';
       }
 
-      $text  = t($text, array('@service' => $serviceName));
-      $label = t($label, array('@service' => $serviceName));
+      $placeholders = array('@service' => $service->getMeta()->niceName);
+      $text  = t($text, $placeholders);
+      $label = t($label, $placeholders);
 
       $form['web_services'][$serviceName]['connect_button'] = array(
         '#markup' =>

@@ -32,48 +32,6 @@ function wsconnect_block_view($delta = '') {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- */
-function wsconnect_form_user_login_block_alter(&$form, &$form_state) {
-  Wsconnect::instance()->hooks->showBlocksOnLoginForm($form);
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function wsconnect_form_user_login_alter(&$form, &$form_state) {
-  Wsconnect::instance()->hooks->showBlocksOnLoginForm($form);
-}
-
-/**
- * Implements hook_menu().
- */
-function wsconnect_menu() {
-  $items['wsconnect/connect/%s'] = array(
-    'type' => MENU_CALLBACK,
-    'page callback' => 'wsconnect_connect',
-    'page arguments' => array(2),
-    'access callback' => TRUE,
-  );
-
-  $items['wsconnect/disconnect/%s'] = array(
-    'type' => MENU_CALLBACK,
-    'page callback' => 'wsconnect_disconnect',
-    'page arguments' => array(2),
-    'access callback' => TRUE,
-  );
-
-  return $items;
-}
-
-/**
- * Implements hook_user_insert
- */
-function wconsumer_github_connect_user_insert(&$edit, $account, $category) {
-  Wsconnect::instance()->hooks->storeCredentialsFromSessionToUserAccount($account->uid);
-}
-
-/**
  * Implements hook_module_implements_alter().
  */
 function wsconnect_module_implements_alter(&$implementations, $hook) {
@@ -91,8 +49,58 @@ function wsconnect_module_implements_alter(&$implementations, $hook) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
+function wsconnect_form_user_login_block_alter(&$form, &$form_state) {
+  Wsconnect::instance()->hooks->showBlocksOnLoginForm($form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function wsconnect_form_user_login_alter(&$form, &$form_state) {
+  Wsconnect::instance()->hooks->showBlocksOnLoginForm($form);
+}
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function wsconnect_form_user_register_form_alter(&$form, &$form_state) {
+  Wsconnect::instance()->hooks->fillRegisterFormWithUserData($form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
 function wsconnect_form_user_profile_form_alter(&$form, $form_state) {
   Wsconnect::instance()->hooks->insertConnectButtonsIntoProfileForm($form);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function wsconnect_menu() {
+  $items = array();
+
+  $items['wsconnect/connect/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'wsconnect_connect',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+  );
+
+  $items['wsconnect/disconnect/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'wsconnect_disconnect',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_user_insert
+ */
+function wsconnect_user_insert(&$edit, $account, $category) {
+  Wsconnect::instance()->hooks->storeCredentialsFromSessionToUserAccount($account->uid);
 }
 
 function wsconnect_connect($service) {
