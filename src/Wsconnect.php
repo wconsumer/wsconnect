@@ -45,7 +45,7 @@ class Wsconnect {
       drupal_set_message($e->getMessage(), 'error');
     }
     catch (\Exception $e) {
-      drupal_set_message('An unknown error occurred. Please try again later or connect with the site administrator.');
+      drupal_set_message('An unknown error occurred. Please try again later or connect with the site administrator.', 'error');
     }
 
     drupal_goto();

@@ -6,6 +6,7 @@ use Drupal\wconsumer\Service\Base as Service;
 use Wsconnect\AuthBackend\AuthBackendInterface;
 
 
+
 class AuthBackendManager extends \ArrayObject {
   private $backends;
 
@@ -15,6 +16,7 @@ class AuthBackendManager extends \ArrayObject {
     $knownBackends = array(
       AuthBackend\Github::getClass() => Wconsumer::$github,
       AuthBackend\Google::getClass() => Wconsumer::$google,
+      AuthBackend\Linkedin::getClass() => Wconsumer::$linkedin,
     );
 
     /** @var AuthBackendInterface[] $backends */
@@ -68,11 +70,9 @@ class AuthBackendManager extends \ArrayObject {
 
   public function active($name) {
     $backend = @$this->backends[$name];
-    if (!isset($backend)) {
-      throw new \InvalidArgumentException("Unknown auth backend '{$name}' passed");
-    }
 
     return
+      isset($backend) &&
       $this->enabled($name) &&
       $backend->getService()->isActive();
   }
