@@ -55,7 +55,24 @@ class Wsconnect {
     global $user;
 
     if (!user_is_logged_in()) {
-      return;
+      drupal_goto();
+    }
+
+    if (!empty($user->data['wsconnect_autoreg'])) {
+      if (!empty($_GET['confirm_account_removal'])) {
+        user_delete($user->uid);
+        unset($_GET['destination']);
+      }
+      else {
+        drupal_set_message(
+          t('Disconnecting would lead to this account removal. Would you like to proceed?<p></p>').
+          $this->hooks->renderConnectButton('OK', 'disconnect', $service, true).
+          $this->hooks->renderButton('Cancel', '/', array(), array('onclick' => 'this.parentNode.style.display="none"; return false;')),
+          'warning'
+        );
+      }
+
+      drupal_goto();
     }
 
     $service = Wconsumer::instance()->services->{$service};
@@ -186,6 +203,10 @@ class Wsconnect {
     drupal_form_submit('user_register_form', $form_state = array('values' => array(
       'name' => $login,
       'mail' => $email,
+      'pass' => array(
+        'pass1' => $pass = user_password(),
+        'pass2' => $pass,
+      )
     )));
 
     // Find user account info
@@ -211,6 +232,8 @@ class Wsconnect {
 
       drupal_goto('user/register');
     }
+
+    user_save($account, array('data' => array('wsconnect_autoreg' => true)));
 
     $GLOBALS['user'] = $account;
     $this->connectCurrentUser($backend->getService(), $userGuid);

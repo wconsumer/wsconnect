@@ -103,13 +103,29 @@ class Hooks {
         '#markup' =>
           '<p></p><p>
             '.$text.'
-      </p>'.
-          l($label, sprintf("wsconnect/%s/%s/", $verb, rawurlencode($serviceName)), array(
-            'attributes' => array('class' => 'button'),
-            'query' => drupal_get_destination(),
-          )),
+          </p>'.
+          $this->renderConnectButton($label, $verb, $serviceName)
       );
     }
+  }
+
+  public function renderConnectButton($label, $action, $service, $confirmAccountRemoval = false) {
+    $url = sprintf("wsconnect/%s/%s", $action, rawurlencode($service));
+
+    $query = array();
+    if ($confirmAccountRemoval) {
+      $query['confirm_account_removal'] = 1;
+    }
+
+    return $this->renderButton($label, $url, $query);
+  }
+
+  public function renderButton($label, $url, array $query = array(), array $attributes = array()) {
+    return
+      l($label, $url, array(
+        'attributes' => $attributes + array('class' => array('button')),
+        'query' => $query + drupal_get_destination(),
+      ));
   }
 
   public function showBlocksOnLoginForm(&$form) {
@@ -238,9 +254,14 @@ class Hooks {
   }
 
   private function getBackendFromAdminSettingsForm($form) {
-    $service = Wconsumer::instance()->services->{$form['service-name']['#value']};
-    $backend = Wsconnect::instance()->backends->get($service->getName(), false);
-    return $backend;
+    if (($serviceName = @$form['service-name']['#value']) &&
+        ($service = Wconsumer::instance()->services->{$serviceName}) &&
+        ($backend = Wsconnect::instance()->backends->get($service->getName(), false))) {
+      return $backend;
+    }
+    else {
+      return null;
+    }
   }
 
   private function suppressExceptions($function) {
