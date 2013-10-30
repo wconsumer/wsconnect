@@ -1,7 +1,7 @@
 <?php
 namespace Wsconnect;
 
-use Drupal\wconsumer\Service\Base as Service;
+use Drupal\wconsumer\Service\Service;
 use Drupal\wconsumer\Wconsumer;
 
 

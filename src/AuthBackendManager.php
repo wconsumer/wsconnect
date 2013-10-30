@@ -2,7 +2,7 @@
 namespace Wsconnect;
 
 use Drupal\wconsumer\Wconsumer;
-use Drupal\wconsumer\Service\Base as Service;
+use Drupal\wconsumer\Service\Service;
 use Wsconnect\AuthBackend\AuthBackendInterface;
 
 

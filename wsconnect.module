@@ -1,6 +1,6 @@
 <?php
 use Wsconnect\Wsconnect;
-use Drupal\wconsumer\Service\Base as Service;
+use Drupal\wconsumer\Service\Service;
 
 require_once(__DIR__.'/autoload.php');
 
